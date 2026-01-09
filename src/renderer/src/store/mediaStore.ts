@@ -1,19 +1,11 @@
-import { create } from "zustand";
+import { atom, useAtom } from "jotai";
 import { toast } from "sonner";
-import { AudioItem, FileTypeTag } from "../types/audio";
+import { AudioItem, FileTypeTag, AudioAnalysisResult } from "../types/audio";
 import { ACCEPTED_TYPES } from "../lib/constants";
 
-interface MediaStore {
-  items: AudioItem[];
-  importDialogOpen: boolean;
-
-  // Actions
-  addFiles: (fileList: FileList | File[]) => void;
-  removeItem: (id: string) => void;
-  clearAll: () => void;
-  setImportDialogOpen: (open: boolean) => void;
-  getFileTypeTag: (file: File) => FileTypeTag;
-}
+// Atoms
+const itemsAtom = atom<AudioItem[]>([]);
+const importDialogOpenAtom = atom<boolean>(false);
 
 /**
  * 生成文件的唯一标识（用于去重）
@@ -91,92 +83,96 @@ function loadMediaDuration(
   );
 }
 
-export const useMediaStore = create<MediaStore>((set) => {
-  return {
-    items: [],
-    importDialogOpen: false,
+export const useMediaStore = () => {
+  const [items, setItems] = useAtom(itemsAtom);
+  const [importDialogOpen, setImportDialogOpen] = useAtom(importDialogOpenAtom);
 
-    setImportDialogOpen: (open: boolean) => {
-      set({ importDialogOpen: open });
-    },
+  const addFiles = (fileList: FileList | File[]) => {
+    const files = Array.from(fileList);
 
-    getFileTypeTag: (file: File) => getFileTypeTag(file),
+    // 过滤有效的媒体文件
+    const validFiles = files.filter(isValidMediaFile);
 
-    addFiles: (fileList: FileList | File[]) => {
-      const files = Array.from(fileList);
+    // 创建 AudioItem 对象
+    const newItems: AudioItem[] = validFiles.map((file) => ({
+      id: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`,
+      file,
+      url: URL.createObjectURL(file),
+      duration: undefined,
+    }));
 
-      // 过滤有效的媒体文件
-      const validFiles = files.filter(isValidMediaFile);
+    // 创建现有文件的 key 集合，用于去重
+    const existingKeys = new Set(items.map((item) => getFileKey(item.file)));
 
-      // 创建 AudioItem 对象
-      const newItems: AudioItem[] = validFiles.map((file) => ({
-        id: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
-          .toString(36)
-          .slice(2, 8)}`,
-        file,
-        url: URL.createObjectURL(file),
-        duration: undefined,
-      }));
+    // 过滤出不存在的新文件
+    const uniqueNew = newItems.filter(
+      (item) => !existingKeys.has(getFileKey(item.file))
+    );
 
-      set((state) => {
-        // 创建现有文件的 key 集合，用于去重
-        const existingKeys = new Set(
-          state.items.map((item) => getFileKey(item.file))
-        );
+    // 如果有重复文件，提示用户
+    if (uniqueNew.length < newItems.length) {
+      toast.warning("检测到重复文件，已自动过滤");
+    }
 
-        // 过滤出不存在的新文件
-        const uniqueNew = newItems.filter(
-          (item) => !existingKeys.has(getFileKey(item.file))
-        );
+    if (uniqueNew.length === 0) {
+      setImportDialogOpen(false);
+      return;
+    }
 
-        // 如果有重复文件，提示用户
-        if (uniqueNew.length < newItems.length) {
-          toast.warning("检测到重复文件，已自动过滤");
-        }
+    setItems((prev) => [...prev, ...uniqueNew]);
 
-        const merged = [...state.items, ...uniqueNew];
-
-        // 异步读取时长
-        uniqueNew.forEach((item) => {
-          loadMediaDuration(
-            item,
-            (id: string, duration: number | null, error?: string) => {
-              set((s) => ({
-                items: s.items.map((it) =>
-                  it.id === id
-                    ? { ...it, duration, error: error || it.error }
-                    : it
-                ),
-              }));
-            }
+    // 异步读取时长
+    uniqueNew.forEach((item) => {
+      loadMediaDuration(
+        item,
+        (id: string, duration: number | null, error?: string) => {
+          setItems((currentItems) =>
+            currentItems.map((it) =>
+              it.id === id ? { ...it, duration, error: error || it.error } : it
+            )
           );
-        });
-
-        // 关闭导入弹窗并更新文件列表
-        return {
-          items: merged,
-          importDialogOpen: false,
-        };
-      });
-    },
-
-    removeItem: (id: string) => {
-      set((state) => {
-        const item = state.items.find((x) => x.id === id);
-        if (item) {
-          URL.revokeObjectURL(item.url);
         }
-        return {
-          items: state.items.filter((x) => x.id !== id),
-        };
-      });
-    },
+      );
+    });
 
-    clearAll: () => {
-      set((state) => {
-        state.items.forEach((x) => URL.revokeObjectURL(x.url));
-        return { items: [] };
-      });
-    },
+    setImportDialogOpen(false);
   };
-});
+
+  const removeItem = (id: string) => {
+    setItems((currentItems) => {
+      const item = currentItems.find((x) => x.id === id);
+      if (item) {
+        URL.revokeObjectURL(item.url);
+      }
+      return currentItems.filter((x) => x.id !== id);
+    });
+  };
+
+  const clearAll = () => {
+    setItems((currentItems) => {
+      currentItems.forEach((x) => URL.revokeObjectURL(x.url));
+      return [];
+    });
+  };
+
+  const setAnalysisData = (id: string, data: AudioAnalysisResult) => {
+    setItems((currentItems) =>
+      currentItems.map((item) =>
+        item.id === id ? { ...item, analysisData: data } : item
+      )
+    );
+  };
+
+  return {
+    items,
+    importDialogOpen,
+    addFiles,
+    removeItem,
+    clearAll,
+    setImportDialogOpen,
+    getFileTypeTag,
+    setAnalysisData,
+  };
+};

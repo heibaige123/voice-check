@@ -18,6 +18,7 @@ function App() {
     clearAll,
     setImportDialogOpen,
     getFileTypeTag,
+    setAnalysisData,
   } = useMediaStore();
 
   const hasItems = items.length > 0;
@@ -36,6 +37,7 @@ function App() {
         <FileList
           items={items}
           onRemove={removeItem}
+          onUpdateAnalysis={setAnalysisData}
           onClearAll={clearAll}
           onAddFiles={() => setImportDialogOpen(true)}
           getFileTypeTag={getFileTypeTag}

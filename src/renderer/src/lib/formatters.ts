@@ -18,12 +18,26 @@ export function formatBytes(bytes: number): string {
 }
 
 /**
- * 格式化秒数为 HH:MM:SS 格式
+ * 格式化秒数为 xxHxxMxxS 格式
+ * 为0的项不展示
  */
-export function formatDuration(seconds?: number | null): string {
-  if (seconds == null || !Number.isFinite(seconds)) return "--:--:--";
+export function formatDuration(
+  seconds?: number | null,
+  keepDecimal = false
+): string {
+  if (seconds == null || !Number.isFinite(seconds)) return "--";
+
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  const s = keepDecimal ? seconds % 60 : Math.floor(seconds % 60);
+
+  const parts: string[] = [];
+  if (h > 0) parts.push(`${h}h`);
+  if (m > 0) parts.push(`${m}m`);
+
+  if (s > 0 || parts.length === 0) {
+    parts.push(`${keepDecimal ? s.toFixed(2) : s}s`);
+  }
+
+  return parts.join("");
 }

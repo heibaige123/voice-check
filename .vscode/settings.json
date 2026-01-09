@@ -6,5 +6,9 @@
     // "**/src/renderer/lib/**": true,
   },
   "css.lint.unknownAtRules": "ignore",
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "cSpell.words": [
+    "flac",
+    "shadcn"
+  ]
 }
