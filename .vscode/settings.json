@@ -1,0 +1,9 @@
+{
+  "files.exclude": {},
+  "search.exclude": {},
+  "files.readonlyInclude": {
+    "**/src/components/ui/**": true,
+    "**/src/lib/**": true,
+  },
+  "css.lint.unknownAtRules": "ignore"
+}
