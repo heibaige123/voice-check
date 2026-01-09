@@ -1,6 +1,39 @@
 import { useEffect, useRef } from "react";
-import * as echarts from "echarts";
+// ECharts 按需引入
+import * as echarts from "echarts/core";
+import { LineChart } from "echarts/charts";
+import {
+  GridComponent,
+  TooltipComponent,
+  MarkLineComponent,
+} from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+import type { ComposeOption } from "echarts/core";
+import type { LineSeriesOption } from "echarts/charts";
+import type {
+  GridComponentOption,
+  TooltipComponentOption,
+  MarkLineComponentOption,
+} from "echarts/components";
+
 import { formatDuration } from "../lib/formatters";
+
+// 注册必须的组件
+echarts.use([
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  MarkLineComponent,
+  CanvasRenderer,
+]);
+
+// 定义 Option 类型
+type ECOption = ComposeOption<
+  | LineSeriesOption
+  | GridComponentOption
+  | TooltipComponentOption
+  | MarkLineComponentOption
+>;
 
 interface AnalysisChartProps {
   data: { time: number; db: number; }[];
@@ -30,7 +63,7 @@ export function AnalysisChart({
     // ECharts 推荐使用二维数据 [[x, y], [x, y], ...] 用于折线图
     const seriesData = data.map((d) => [d.time, d.db]);
 
-    const option: echarts.EChartsOption = {
+    const option: ECOption = {
       animation: !isSimple, // 简略图禁用动画以提升列表性能
       grid: isSimple
         ? { top: 5, bottom: 5, left: 10, right: 10 }

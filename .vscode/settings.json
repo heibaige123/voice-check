@@ -3,12 +3,16 @@
   "search.exclude": {},
   "files.readonlyInclude": {
     "**/src/renderer/components/ui/**": true,
-    // "**/src/renderer/lib/**": true,
+    "**/src/renderer/lib/**": true,
   },
   "css.lint.unknownAtRules": "ignore",
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
     "flac",
+    "gifsicle",
+    "mozjpeg",
+    "optipng",
+    "pngquant",
     "shadcn"
   ]
 }
