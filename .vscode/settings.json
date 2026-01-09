@@ -2,8 +2,9 @@
   "files.exclude": {},
   "search.exclude": {},
   "files.readonlyInclude": {
-    "**/src/components/ui/**": true,
-    "**/src/lib/**": true,
+    "**/src/renderer/components/ui/**": true,
+    // "**/src/renderer/lib/**": true,
   },
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

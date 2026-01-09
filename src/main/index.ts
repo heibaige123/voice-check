@@ -1,7 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain } from "electron";
+import { app, shell, BrowserWindow, ipcMain, dialog, protocol } from "electron";
 import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
+import * as fs from "fs";
 
 function createWindow(): void {
   // Create the browser window.
@@ -43,6 +44,18 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId("com.electron");
 
+  // 注册自定义协议以访问本地文件
+  protocol.registerFileProtocol("local-file", (request, callback) => {
+    const url = request.url.replace("local-file://", "");
+    try {
+      const decodedPath = decodeURIComponent(url);
+      callback({ path: decodedPath });
+    } catch (error) {
+      console.error("Failed to load file:", error);
+      callback({ statusCode: 404 });
+    }
+  });
+
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -52,6 +65,100 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on("ping", () => console.log("pong"));
+
+  // 处理文件选择请求
+  ipcMain.handle("select-files", async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ["openFile", "multiSelections"],
+      filters: [
+        {
+          name: "Media Files",
+          extensions: [
+            "mp3",
+            "wav",
+            "aac",
+            "flac",
+            "ogg",
+            "m4a",
+            "mp4",
+            "webm",
+            "mkv",
+            "avi",
+            "mov",
+            "flv",
+          ],
+        },
+      ],
+    });
+    return result.filePaths;
+  });
+
+  // 处理文件夹选择请求
+  ipcMain.handle("select-folder", async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ["openDirectory"],
+    });
+    return result.filePaths;
+  });
+
+  // 处理文件夹中的文件遍历请求
+  ipcMain.handle("get-folder-files", async (_, folderPath: string) => {
+    const fs = await import("fs");
+    const path = await import("path");
+
+    const getFilesRecursive = (dir: string): string[] => {
+      const files: string[] = [];
+      try {
+        const items = fs.readdirSync(dir);
+
+        items.forEach((item) => {
+          const fullPath = path.join(dir, item);
+          try {
+            const stat = fs.statSync(fullPath);
+
+            if (stat.isDirectory()) {
+              files.push(...getFilesRecursive(fullPath));
+            } else {
+              files.push(fullPath);
+            }
+          } catch (error) {
+            console.warn(`无法读取 ${fullPath}:`, error);
+          }
+        });
+      } catch (error) {
+        console.warn(`无法遍历目录 ${dir}:`, error);
+      }
+
+      return files;
+    };
+
+    return getFilesRecursive(folderPath);
+  });
+
+  // 验证文件存在并返回文件路径
+  ipcMain.handle("get-file-url", async (_, filePath: string) => {
+    try {
+      if (fs.existsSync(filePath)) {
+        // 返回用于协议访问的 URL
+        const encodedPath = encodeURIComponent(filePath);
+        return {
+          success: true,
+          url: `local-file://${encodedPath}`,
+        };
+      } else {
+        return {
+          success: false,
+          error: "File not found",
+        };
+      }
+    } catch (error) {
+      console.error(`Failed to access file ${filePath}:`, error);
+      return {
+        success: false,
+        error: String(error),
+      };
+    }
+  });
 
   createWindow();
 
