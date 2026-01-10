@@ -1,8 +1,11 @@
 {
     "recommendations": [
+        "tauri-apps.tauri-vscode",
         "streetsidesoftware.code-spell-checker",
+        "dbaeumer.vscode-eslint",
         "yoavbls.pretty-ts-errors",
         "bradlc.vscode-tailwindcss",
-        "dejmedus.tailwind-sorter"
+        "dejmedus.tailwind-sorter",
+        "rust-lang.rust-analyzer"
     ]
 }

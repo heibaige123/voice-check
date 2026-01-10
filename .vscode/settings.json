@@ -2,17 +2,14 @@
   "files.exclude": {},
   "search.exclude": {},
   "files.readonlyInclude": {
-    "**/src/renderer/components/ui/**": true,
-    "**/src/renderer/lib/**": true,
+    "**/src/components/ui/**": true,
+    "**/src/lib/utils.ts": true,
   },
-  "css.lint.unknownAtRules": "ignore",
-  "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
     "flac",
-    "gifsicle",
-    "mozjpeg",
-    "optipng",
-    "pngquant",
-    "shadcn"
+    "huoguang",
+    "maximizable",
+    "shadcn",
+    "tauri"
   ]
 }
