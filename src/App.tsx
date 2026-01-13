@@ -4,6 +4,9 @@ import { Toaster } from "^/components/ui/sonner";
 import { ImportZone } from "./components/ImportZone";
 import { FileList } from "./components/FileList";
 import { useMediaStore } from "./store/mediaStore";
+import { useTheme } from "./store/themeStore";
+import { useEffect, useRef } from "react";
+import { analyzeAudio } from "./lib/audioAnalyzer";
 
 /**
  * 主应用组件
@@ -14,6 +17,7 @@ function App() {
     items,
     importDialogOpen,
     addFiles,
+    addFromUrl,
     removeItem,
     clearAll,
     setImportDialogOpen,
@@ -22,6 +26,7 @@ function App() {
   } = useMediaStore();
 
   const hasItems = items.length > 0;
+  const previousItemsCountRef = useRef(0);
 
   const handleFilesSelected = (files: FileList) => {
     addFiles(files);
@@ -31,8 +36,40 @@ function App() {
     addFiles(files);
   };
 
+  const handleUrlSelected = (urls: string[]) => {
+    urls.forEach(url => addFromUrl(url));
+  };
+
+  // 自动分析新导入的文件
+  useEffect(() => {
+    // 检测新添加的文件
+    if (items.length > previousItemsCountRef.current) {
+      const newItemsCount = items.length - previousItemsCountRef.current;
+      const newItems = items.slice(-newItemsCount);
+      
+      // 自动分析新文件
+      newItems.forEach(async (item) => {
+        if (!item.analysisData) {
+          try {
+            const result = await analyzeAudio(item.url, 20);
+            setAnalysisData(item.id, result);
+          } catch (error) {
+            console.error(`Auto-analysis failed for ${item.file.name}:`, error);
+          }
+        }
+      });
+    }
+    
+    previousItemsCountRef.current = items.length;
+  }, [items, setAnalysisData]);
+
+  const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+  const bgClass = isDark ? "bg-slate-950" : "bg-white";
+  const textClass = isDark ? "text-white" : "text-slate-950";
+
   return (
-    <main className="flex flex-col bg-slate-50 h-screen text-slate-900">
+    <main className={`flex flex-col h-screen overflow-hidden ${bgClass} ${textClass}`}>
       {hasItems ? (
         <FileList
           items={items}
@@ -43,21 +80,20 @@ function App() {
           getFileTypeTag={getFileTypeTag}
         />
       ) : (
-        <div className="flex flex-col flex-1 justify-center items-center p-6">
+        <div className="flex flex-col flex-1 justify-center items-center p-8">
           <div className="w-full max-w-3xl">
-            <Card>
-              <CardHeader className="sm:flex sm:justify-between sm:items-center space-y-1 sm:space-y-0">
-                <div>
-                  <CardTitle className="text-2xl">导入媒体文件</CardTitle>
-                  <p className="text-slate-600 text-sm">
-                    支持单个或多个音频/视频文件，拖拽或点击选择。
-                  </p>
-                </div>
+            <Card className={`shadow-xl border-0 rounded-3xl ${isDark ? "bg-slate-900 text-slate-50" : "bg-white text-slate-950"}`}>
+              <CardHeader className="pb-6">
+                <CardTitle className={`font-bold text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-950"}`}>音频分析工具</CardTitle>
+                <p className={`mt-3 text-base ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                  导入音频/视频文件，自动分析分贝等级，一键识别音质问题
+                </p>
               </CardHeader>
               <CardContent>
                 <ImportZone
                   onFilesSelected={handleFilesSelected}
                   onDirSelected={handleDirSelected}
+                  onUrlSelected={handleUrlSelected}
                 />
               </CardContent>
             </Card>
@@ -74,6 +110,7 @@ function App() {
           <ImportZone
             onFilesSelected={handleFilesSelected}
             onDirSelected={handleDirSelected}
+            onUrlSelected={handleUrlSelected}
           />
         </DialogContent>
       </Dialog>

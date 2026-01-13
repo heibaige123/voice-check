@@ -17,6 +17,7 @@ import type {
 } from "echarts/components";
 
 import { formatDuration } from "../lib/formatters";
+import { useTheme } from "^/store/themeStore";
 
 // 注册必须的组件
 echarts.use([
@@ -46,6 +47,8 @@ export function AnalysisChart({
   height = 300,
   variant = "default",
 }: AnalysisChartProps) {
+  const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
 
@@ -86,8 +89,8 @@ export function AnalysisChart({
         name: "Time(s)",
         nameLocation: "middle",
         nameGap: 20,
-        axisLabel: { color: "#64748b" },
-        axisLine: { lineStyle: { color: "#e2e8f0" } },
+        axisLabel: { color: isDark ? "#64748b" : "#475569" },
+        axisLine: { lineStyle: { color: isDark ? "#e2e8f0" : "#cbd5e1" } },
         splitLine: { show: false },
       },
       yAxis: {
@@ -96,12 +99,12 @@ export function AnalysisChart({
         min: 40,
         max: 100,
         name: "dB",
-        axisLabel: { color: "#64748b" },
+        axisLabel: { color: isDark ? "#64748b" : "#475569" },
         axisLine: { show: false },
         splitLine: {
           show: !isSimple,
           lineStyle: {
-            color: "#e2e8f0",
+            color: isDark ? "#e2e8f0" : "#cbd5e1",
             type: "dashed",
           },
         },
@@ -162,7 +165,7 @@ export function AnalysisChart({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [data, height, variant]);
+  }, [data, height, variant, isDark]);
 
   // 组件卸载时清理
   useEffect(() => {
@@ -176,7 +179,7 @@ export function AnalysisChart({
     return (
       <div
         style={{ height }}
-        className="flex justify-center items-center bg-slate-50 border rounded-md text-slate-400"
+        className={`flex justify-center items-center border rounded-md ${isDark ? "bg-slate-800 text-slate-500" : "bg-slate-50 text-slate-400"}`}
       >
         暂无数据
       </div>

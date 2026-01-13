@@ -20,6 +20,7 @@ export interface AudioItem {
   duration?: number | null;
   error?: string;
   analysisData?: AudioAnalysisResult;
+  fileSizeExceed?: boolean; // 文件体积超过限制
 }
 
 /**

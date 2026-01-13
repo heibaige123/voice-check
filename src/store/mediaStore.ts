@@ -1,7 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { toast } from "sonner";
 import { AudioItem, FileTypeTag, AudioAnalysisResult } from "../types/audio";
-import { ACCEPTED_TYPES } from "../lib/constants";
+import { useSettings } from "./settingsStore";
 
 // Atoms
 const itemsAtom = atom<AudioItem[]>([]);
@@ -19,10 +19,24 @@ function getFileKey(file: File): string {
  */
 function isValidMediaFile(file: File): boolean {
   const name = file.name.toLowerCase();
-  if (file.type.startsWith("audio/")) return true;
-  return ACCEPTED_TYPES.some((t) =>
-    t.startsWith(".") ? name.endsWith(t) : file.type === t
-  );
+  
+  // 支持的扩展名列表
+  const supportedExtensions = [
+    ".mp3", ".wav", ".flac", ".m4a", ".aac", 
+    ".ogg", ".opus", ".webm", ".mp4"
+  ];
+  
+  // 检查文件扩展名
+  if (supportedExtensions.some(ext => name.endsWith(ext))) {
+    return true;
+  }
+  
+  // 检查 MIME 类型
+  if (file.type.startsWith("audio/") || file.type.startsWith("video/")) {
+    return true;
+  }
+  
+  return false;
 }
 
 /**
@@ -86,6 +100,78 @@ function loadMediaDuration(
 export const useMediaStore = () => {
   const [items, setItems] = useAtom(itemsAtom);
   const [importDialogOpen, setImportDialogOpen] = useAtom(importDialogOpenAtom);
+  const { settings } = useSettings();
+
+  const addFromUrl = async (url: string) => {
+    // 验证 URL 格式
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      toast.error("请输入有效的网址（http:// 或 https://）");
+      return;
+    }
+
+    try {
+      // 从 URL 获取文件
+      const response = await fetch(url);
+      if (!response.ok) {
+        toast.error(`无法加载网址：${response.statusText}`);
+        return;
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      const blob = await response.blob();
+      
+      // 检查文件体积，标记程序候会优先级，但不拒绝导入
+      const fileSizeMB = blob.size / (1024 * 1024);
+      const fileSizeExceed = fileSizeMB > settings.maxFileSizeMB;
+      if (fileSizeExceed) {
+        toast.warning(`文件体积较大 (${fileSizeMB.toFixed(2)} MB)，已上传，但将显示警告`);
+      }
+      
+      // 从 URL 中提取文件名
+      const urlPath = new URL(url).pathname;
+      const fileName = urlPath.split("/").pop() || "media-file";
+      
+      // 创建 File 对象
+      const file = new File([blob], fileName, { type: contentType });
+      
+      // 验证是否为有效的媒体文件
+      if (!isValidMediaFile(file)) {
+        toast.error("该网址不是支持的音频或视频格式");
+        return;
+      }
+
+      // 创建 AudioItem 对象
+      const newItem: AudioItem = {
+        id: `${file.name}-${file.size}-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+        file,
+        url: URL.createObjectURL(file),
+        duration: undefined,
+        fileSizeExceed,
+      };
+
+      setItems((prev) => [...prev, newItem]);
+
+      // 异步读取时长
+      loadMediaDuration(
+        newItem,
+        (id: string, duration: number | null, error?: string) => {
+          setItems((currentItems) =>
+            currentItems.map((it) =>
+              it.id === id ? { ...it, duration, error: error || it.error } : it
+            )
+          );
+        }
+      );
+
+      toast.success("已成功从网址添加媒体文件");
+      setImportDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to load media from URL:", error);
+      toast.error("加载网址失败，请检查网址是否正确");
+    }
+  };
 
   const addFiles = (fileList: FileList | File[]) => {
     const files = Array.from(fileList);
@@ -94,14 +180,19 @@ export const useMediaStore = () => {
     const validFiles = files.filter(isValidMediaFile);
 
     // 创建 AudioItem 对象
-    const newItems: AudioItem[] = validFiles.map((file) => ({
-      id: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
-        .toString(36)
-        .slice(2, 8)}`,
-      file,
-      url: URL.createObjectURL(file),
-      duration: undefined,
-    }));
+    const newItems: AudioItem[] = validFiles.map((file) => {
+      const fileSizeMB = file.size / (1024 * 1024);
+      const fileSizeExceed = fileSizeMB > settings.maxFileSizeMB;
+      return {
+        id: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+        file,
+        url: URL.createObjectURL(file),
+        duration: undefined,
+        fileSizeExceed,
+      };
+    });
 
     // 创建现有文件的 key 集合，用于去重
     const existingKeys = new Set(items.map((item) => getFileKey(item.file)));
@@ -169,6 +260,7 @@ export const useMediaStore = () => {
     items,
     importDialogOpen,
     addFiles,
+    addFromUrl,
     removeItem,
     clearAll,
     setImportDialogOpen,
