@@ -9,9 +9,9 @@ export interface Settings {
 
 // 默认配置
 const defaultSettings: Settings = {
-  minDbThreshold: -40,  // dB 值应该是负数
-  maxDbThreshold: -6,   // dB 值应该是负数
-  maxFileSizeMB: 5,   // 默认上限 500 MB
+  minDbThreshold: 10,  // dB 值应该是负数
+  maxDbThreshold: 60,   // dB 值应该是负数
+  maxFileSizeMB: 5,   // 默认上限 5 MB
 };
 
 // 使用 atomWithStorage 实现持久化到 localStorage
