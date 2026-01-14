@@ -4,7 +4,6 @@ import { Textarea } from "^/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "^/components/ui/tabs";
 import { Upload, FolderOpen, Link2 } from "lucide-react";
 import { ACCEPTED_TYPES } from "../lib/constants";
-import { useTheme } from "^/store/themeStore";
 
 interface ImportZoneProps {
   onFilesSelected: (files: FileList) => void;
@@ -17,8 +16,6 @@ interface ImportZoneProps {
  * 支持拖拽上传、点击选择文件/文件夹、网址导入
  */
 export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: ImportZoneProps) {
-  const { theme } = useTheme();
-  const isDark = theme.mode === "dark";
   const inputRef = useRef<HTMLInputElement | null>(null);
   const dirInputRef = useRef<HTMLInputElement | null>(null);
   const [urlInput, setUrlInput] = useState("");
@@ -69,7 +66,7 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
       .split("\n")
       .map(url => url.trim())
       .filter(url => url.length > 0);
-    
+
     if (urls.length > 0 && onUrlSelected) {
       onUrlSelected(urls);
       setUrlInput("");
@@ -78,17 +75,17 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
 
   return (
     <Tabs defaultValue="folder" className="w-full">
-      <TabsList className={`grid grid-cols-3 mb-8 p-1 w-full ${isDark ? "bg-slate-700" : "bg-slate-200"}`}>
-        <TabsTrigger value="folder" className="flex items-center gap-2 data-[state=active]:bg-slate-600 rounded data-[state=active]:text-white transition-all">
+      <TabsList className="grid grid-cols-3 bg-slate-200 mb-8 p-1 w-full">
+        <TabsTrigger value="folder" className="flex items-center gap-2">
           <FolderOpen className="w-4 h-4" />
           <span className="hidden sm:inline font-medium text-sm">文件夹</span>
         </TabsTrigger>
-        <TabsTrigger value="drag" className="flex items-center gap-2 data-[state=active]:bg-slate-600 rounded data-[state=active]:text-white transition-all">
+        <TabsTrigger value="drag" className="flex items-center gap-2">
           <Upload className="w-4 h-4" />
           <span className="hidden sm:inline font-medium text-sm">拖拽/选择</span>
         </TabsTrigger>
         {onUrlSelected && (
-          <TabsTrigger value="url" className="flex items-center gap-2 data-[state=active]:bg-slate-600 rounded data-[state=active]:text-white transition-all">
+          <TabsTrigger value="url" className="flex items-center gap-2">
             <Link2 className="w-4 h-4" />
             <span className="hidden sm:inline font-medium text-sm">网址</span>
           </TabsTrigger>
@@ -97,21 +94,21 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
 
       {/* 选择文件夹标签页 */}
       <TabsContent value="folder" className="min-h-80">
-        <div className={`flex flex-col justify-center border border-dashed rounded-2xl h-full transition-all duration-200 p-8 ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}`}>
+        <div className="flex flex-col justify-center bg-white p-8 border border-slate-200 border-dashed rounded-2xl h-full">
           <div className="space-y-4">
             <div className="flex justify-center">
-              <FolderOpen className={`w-14 h-14 ${isDark ? "text-slate-300" : "text-slate-600"}`} />
+              <FolderOpen className="w-14 h-14 text-slate-600" />
             </div>
             <div className="text-center">
-              <p className={`font-semibold text-lg ${isDark ? "text-slate-100" : "text-slate-900"}`}>选择文件夹</p>
-              <p className={`mt-1 text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>自动扫描所有子文件夹中的媒体文件</p>
+              <p className="font-semibold text-slate-900 text-lg">选择文件夹</p>
+              <p className="mt-1 text-slate-600 text-sm">自动扫描所有子文件夹中的媒体文件</p>
             </div>
-            <Button 
-              onClick={handlePickDir} 
-              className={`flex justify-center items-center gap-2 w-full font-semibold transition-all duration-200 cursor-pointer border-0 text-white rounded-lg ${isDark ? "bg-slate-600 hover:bg-slate-700" : "bg-slate-500 hover:bg-slate-600"}`}
+            <Button
+              onClick={handlePickDir}
+              className="w-full"
               size="lg"
             >
-              <FolderOpen className="w-5 h-5" />
+              <FolderOpen className="mr-2 w-5 h-5" />
               选择文件夹
             </Button>
           </div>
@@ -123,22 +120,22 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
-          className={`flex flex-col justify-center border border-dashed rounded-2xl h-full transition-all duration-200 p-8 ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}`}
+          className="flex flex-col justify-center bg-white p-8 border border-slate-200 border-dashed rounded-2xl h-full"
         >
           <div className="space-y-4">
             <div className="flex justify-center">
-              <Upload className={`w-14 h-14 ${isDark ? "text-slate-300" : "text-slate-600"}`} />
+              <Upload className="w-14 h-14 text-slate-600" />
             </div>
             <div className="text-center">
-              <p className={`font-semibold text-lg ${isDark ? "text-slate-100" : "text-slate-900"}`}>拖拽文件到此处</p>
-              <p className={`mt-1 text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>或点击下方按钮选择文件</p>
+              <p className="font-semibold text-slate-900 text-lg">拖拽文件到此处</p>
+              <p className="mt-1 text-slate-600 text-sm">或点击下方按钮选择文件</p>
             </div>
-            <Button 
-              onClick={handlePickFile} 
-              className={`flex justify-center items-center gap-2 w-full font-semibold transition-all duration-200 cursor-pointer border-0 text-white rounded-lg ${isDark ? "bg-slate-600 hover:bg-slate-700" : "bg-slate-500 hover:bg-slate-600"}`}
+            <Button
+              onClick={handlePickFile}
+              className="w-full"
               size="lg"
             >
-              <Upload className="w-5 h-5" />
+              <Upload className="mr-2 w-5 h-5" />
               选择文件
             </Button>
           </div>
@@ -148,29 +145,29 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
       {/* 网址导入标签页 */}
       {onUrlSelected && (
         <TabsContent value="url" className="min-h-80">
-          <div className={`flex flex-col justify-between border border-dashed rounded-2xl h-full transition-all duration-200 p-8 ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}`}>
+          <div className="flex flex-col justify-between bg-white p-8 border border-slate-200 border-dashed rounded-2xl h-full">
             <div className="space-y-4">
               <div className="flex justify-center">
-                <Link2 className={`w-14 h-14 ${isDark ? "text-slate-300" : "text-slate-600"}`} />
+                <Link2 className="w-14 h-14 text-slate-600" />
               </div>
               <div className="text-center">
-                <p className={`font-semibold text-lg ${isDark ? "text-slate-100" : "text-slate-900"}`}>网址导入</p>
-                <p className={`mt-1 text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>每行一个网址，支持 HTTP/HTTPS</p>
+                <p className="font-semibold text-slate-900 text-lg">网址导入</p>
+                <p className="mt-1 text-slate-600 text-sm">每行一个网址，支持 HTTP/HTTPS</p>
               </div>
               <Textarea
                 placeholder="http://example.com/audio1.mp3
 http://example.com/audio2.mp3"
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
-                className={`border min-h-20 font-mono text-sm resize-y ${isDark ? "bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500" : "bg-slate-50 border-slate-300 text-slate-950 placeholder:text-slate-400"}`}
+                className="min-h-20 font-mono text-sm resize-y"
               />
-              <Button 
-                onClick={handleUrlSubmit} 
-                disabled={!urlInput.trim()} 
-                className={`flex justify-center items-center gap-2 disabled:shadow-none w-full font-semibold transition-all duration-200 cursor-pointer disabled:cursor-not-allowed border-0 text-white rounded-lg ${isDark ? "bg-slate-600 hover:bg-slate-700 disabled:bg-slate-700 disabled:hover:scale-100" : "bg-slate-500 hover:bg-slate-600 disabled:bg-slate-300 disabled:hover:scale-100"}`}
+              <Button
+                onClick={handleUrlSubmit}
+                disabled={!urlInput.trim()}
+                className="w-full"
                 size="lg"
               >
-                <Link2 className="w-5 h-5" />
+                <Link2 className="mr-2 w-5 h-5" />
                 添加 {urlInput.split("\n").filter(u => u.trim()).length > 0 ? `${urlInput.split("\n").filter(u => u.trim()).length} 个` : ""}
               </Button>
             </div>
@@ -179,9 +176,9 @@ http://example.com/audio2.mp3"
       )}
 
       {/* 支持格式提示 */}
-      <div className={`mt-6 pt-4 border-t ${isDark ? "border-slate-700" : "border-slate-300"}`}>
-        <p className={`mb-2 font-medium text-sm ${isDark ? "text-slate-300" : "text-slate-700"}`}>支持的格式：</p>
-        <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+      <div className="mt-6 pt-4 border-slate-300 border-t">
+        <p className="mb-2 font-medium text-slate-700 text-sm">支持的格式：</p>
+        <p className="text-slate-600 text-xs">
           MP3, WAV, FLAC, M4A, AAC, OGG, Opus, WebM, MP4
         </p>
       </div>

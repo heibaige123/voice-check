@@ -9,8 +9,8 @@ export interface Settings {
 
 // 默认配置
 const defaultSettings: Settings = {
-  minDbThreshold: 10,  // dB 值应该是负数
-  maxDbThreshold: 60,   // dB 值应该是负数
+  minDbThreshold: 80,  
+  maxDbThreshold: 94,   
   maxFileSizeMB: 5,   // 默认上限 5 MB
 };
 

@@ -4,7 +4,6 @@ import { Toaster } from "^/components/ui/sonner";
 import { ImportZone } from "./components/ImportZone";
 import { FileList } from "./components/FileList";
 import { useMediaStore } from "./store/mediaStore";
-import { useTheme } from "./store/themeStore";
 import { useEffect, useRef } from "react";
 import { analyzeAudio } from "./lib/audioAnalyzer";
 
@@ -63,13 +62,8 @@ function App() {
     previousItemsCountRef.current = items.length;
   }, [items, setAnalysisData]);
 
-  const { theme } = useTheme();
-  const isDark = theme.mode === "dark";
-  const bgClass = isDark ? "bg-slate-950" : "bg-white";
-  const textClass = isDark ? "text-white" : "text-slate-950";
-
   return (
-    <main className={`flex flex-col h-screen overflow-hidden ${bgClass} ${textClass}`}>
+    <main className={`flex flex-col h-screen overflow-hidden bg-white text-slate-950`}>
       {hasItems ? (
         <FileList
           items={items}
@@ -82,10 +76,10 @@ function App() {
       ) : (
         <div className="flex flex-col flex-1 justify-center items-center p-8">
           <div className="w-full max-w-3xl">
-            <Card className={`shadow-xl border-0 rounded-3xl ${isDark ? "bg-slate-900 text-slate-50" : "bg-white text-slate-950"}`}>
+            <Card className="bg-white shadow-xl border-0 rounded-3xl text-slate-950">
               <CardHeader className="pb-6">
-                <CardTitle className={`font-bold text-4xl tracking-tight ${isDark ? "text-white" : "text-slate-950"}`}>音频分析工具</CardTitle>
-                <p className={`mt-3 text-base ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                <CardTitle className="font-bold text-slate-950 text-4xl tracking-tight">音频分析工具</CardTitle>
+                <p className="mt-3 text-slate-600 text-base">
                   导入音频/视频文件，自动分析分贝等级，一键识别音质问题
                 </p>
               </CardHeader>
