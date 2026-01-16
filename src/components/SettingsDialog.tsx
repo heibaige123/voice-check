@@ -51,7 +51,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 font-medium text-slate-900 text-sm">
                   <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <AlertTriangle className="size-3.5 text-yellow-500 cursor-help shrink-0" />
                     </TooltipTrigger>
                     <TooltipContent>平均分贝偏低</TooltipContent>
@@ -79,7 +79,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <div className="space-y-2 pl-4 border-slate-300 border-l">
                 <label className="flex items-center gap-2 font-medium text-slate-900 text-sm">
                   <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <AlertTriangle className="size-3.5 text-red-500 cursor-help shrink-0" />
                     </TooltipTrigger>
                     <TooltipContent>最大分贝过高</TooltipContent>
@@ -108,7 +108,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <div className="space-y-2">
               <label className="flex items-center gap-2 font-medium text-slate-900 text-sm">
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <AlertCircle className="size-3.5 text-orange-500 cursor-help shrink-0" />
                   </TooltipTrigger>
                   <TooltipContent>文件体积超过限制</TooltipContent>

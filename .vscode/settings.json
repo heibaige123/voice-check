@@ -3,13 +3,9 @@
   "search.exclude": {},
   "files.readonlyInclude": {
     "**/src/components/ui/**": true,
-    "**/src/lib/utils.ts": true,
+    "**/src/lib/utils.ts": true
   },
-  "cSpell.words": [
-    "flac",
-    "huoguang",
-    "maximizable",
-    "shadcn",
-    "tauri"
-  ]
+  "css.customData": [".vscode/tailwindcss.json"],
+  "cSpell.words": ["flac", "huoguang", "maximizable", "shadcn", "tauri"]
 }
+

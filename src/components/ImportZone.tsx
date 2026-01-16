@@ -75,17 +75,17 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
 
   return (
     <Tabs defaultValue="folder" className="w-full">
-      <TabsList className="grid grid-cols-3 bg-slate-200 mb-8 p-1 w-full">
-        <TabsTrigger value="folder" className="flex items-center gap-2">
+      <TabsList className="grid grid-cols-3 mb-8 p-1 w-full">
+        <TabsTrigger value="folder" className="flex items-center gap-2 cursor-pointer">
           <FolderOpen className="w-4 h-4" />
           <span className="hidden sm:inline font-medium text-sm">文件夹</span>
         </TabsTrigger>
-        <TabsTrigger value="drag" className="flex items-center gap-2">
+        <TabsTrigger value="drag" className="flex items-center gap-2 cursor-pointer">
           <Upload className="w-4 h-4" />
           <span className="hidden sm:inline font-medium text-sm">拖拽/选择</span>
         </TabsTrigger>
         {onUrlSelected && (
-          <TabsTrigger value="url" className="flex items-center gap-2">
+          <TabsTrigger value="url" className="flex items-center gap-2 cursor-pointer">
             <Link2 className="w-4 h-4" />
             <span className="hidden sm:inline font-medium text-sm">网址</span>
           </TabsTrigger>
@@ -105,7 +105,7 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
             </div>
             <Button
               onClick={handlePickDir}
-              className="w-full"
+              className="w-full cursor-pointer"
               size="lg"
             >
               <FolderOpen className="mr-2 w-5 h-5" />
@@ -132,7 +132,7 @@ export function ImportZone({ onFilesSelected, onDirSelected, onUrlSelected }: Im
             </div>
             <Button
               onClick={handlePickFile}
-              className="w-full"
+              className="w-full cursor-pointer"
               size="lg"
             >
               <Upload className="mr-2 w-5 h-5" />
@@ -164,7 +164,7 @@ http://example.com/audio2.mp3"
               <Button
                 onClick={handleUrlSubmit}
                 disabled={!urlInput.trim()}
-                className="w-full"
+                className="w-full cursor-pointer"
                 size="lg"
               >
                 <Link2 className="mr-2 w-5 h-5" />
@@ -179,7 +179,7 @@ http://example.com/audio2.mp3"
       <div className="mt-6 pt-4 border-slate-300 border-t">
         <p className="mb-2 font-medium text-slate-700 text-sm">支持的格式：</p>
         <p className="text-slate-600 text-xs">
-          MP3, WAV, FLAC, M4A, AAC, OGG, Opus, WebM, MP4
+          mp3、wav、flac、m4a、aac、ogg、opus、webm、mp4
         </p>
       </div>
 

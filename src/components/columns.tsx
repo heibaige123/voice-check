@@ -8,6 +8,7 @@ import { Button } from "^/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -27,7 +28,7 @@ export const createColumns = (
     {
       accessorKey: "file_name",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="文件名" className="ml-2"/>
+        <DataTableColumnHeader column={column} title="文件名" className="ml-2" />
       ),
       cell: ({ row }) => {
         const item = row.original
@@ -133,7 +134,7 @@ export const createColumns = (
       cell: ({ row }) => {
         const item = row.original
         const warnings: Array<{ label: string; className: string }> = [];
-        
+
         if (item.analysisData && item.analysisData.averageDb < settings.minDbThreshold) {
           warnings.push({ label: "平均分贝偏低", className: "bg-yellow-500" });
         }
@@ -179,38 +180,38 @@ export const createColumns = (
 
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="p-0 w-8 h-8">
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
+            <DropdownMenuTrigger>
+              <MoreHorizontal className="w-4 h-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>操作</DropdownMenuLabel>
-              {getFileTypeTag(item.file) === "视频" && (
-                <>
-                  <DropdownMenuItem onClick={() => onVideoClick(item)}>
-                    <Play className="mr-2 w-4 h-4" />
-                    播放视频
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
-              {item.analysisData && (
-                <>
-                  <DropdownMenuItem onClick={() => onZoom(item)}>
-                    <TrendingUp className="mr-2 w-4 h-4" />
-                    查看分贝折线图
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
-              <DropdownMenuItem
-                onClick={() => onRemove(item.id)}
-                className="text-red-600"
-              >
-                <Trash2 className="mr-2 w-4 h-4" />
-                移除
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-36">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>操作</DropdownMenuLabel>
+                {getFileTypeTag(item.file) === "视频" && (
+                  <>
+                    <DropdownMenuItem onClick={() => onVideoClick(item)}>
+                      <Play className="mr-2 w-4 h-4" />
+                      播放视频
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                {item.analysisData && (
+                  <>
+                    <DropdownMenuItem onClick={() => onZoom(item)}>
+                      <TrendingUp className="mr-2 w-4 h-4" />
+                      查看分贝折线图
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem
+                  onClick={() => onRemove(item.id)}
+                  className="text-red-600"
+                >
+                  <Trash2 className="mr-2 w-4 h-4" />
+                  移除
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         )
